@@ -69,8 +69,10 @@ describe("TarotService drawCards", () => {
       "presente",
       "futuro",
     ]);
-    expect(result[0].orientation).toBe("upright");
-    expect(result[1].orientation).toBe("reversed");
+    // TypeScript guard: array length already asserted above
+    const [card0, card1] = result;
+    expect(card0?.orientation).toBe("upright");
+    expect(card1?.orientation).toBe("reversed");
   });
 
   it("throws when deck is too small", async () => {
