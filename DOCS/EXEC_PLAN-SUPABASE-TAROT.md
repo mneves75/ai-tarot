@@ -14,7 +14,7 @@ Eliminate unsafe non-null assertions in Supabase clients, middleware, and tarot 
 - [x] (2025-11-25T18:37Z) Hardened tarot shuffle/draw against undefined indices.
 - [x] (2025-11-25T18:40Z) Added Vitest suites for env helper and tarot draw.
 - [x] (2025-11-25T18:44Z) Ran `pnpm test:run` (9 suites, 130 tests) and `pnpm lint` (clean).
-- [ ] Commit with Conventional Commit message.
+- [x] (2025-11-25T18:46Z) Committed with `chore: harden env handling and tarot shuffle`.
 
 ## Surprises & Discoveries
 
