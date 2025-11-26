@@ -101,6 +101,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Post-update verification ensures floor constraint
   - Refund operations can still go negative (legitimate business case)
 
+### Changed
+- **LLM Provider Order**: Swapped provider priority - OpenAI (gpt-4o-mini) is now the primary provider with Gemini as fallback
+  - More reliable structured output generation
+  - Better availability during high-traffic periods
+
 ### Fixed
 - **Card Images Not Displaying**: ReadingResults now uses actual card images from `/public/cards/`
   - Added Next.js Image component for optimized loading
