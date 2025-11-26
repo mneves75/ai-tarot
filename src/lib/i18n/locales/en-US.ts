@@ -12,6 +12,12 @@ export const enUS = {
     submit: "Submit",
     credits: "credits",
     credit: "credit",
+    // i18n fix: Added missing common keys
+    saving: "Saving...",
+    deleting: "Deleting...",
+    ptBR: "Português (Brasil)",
+    enUS: "English (US)",
+    notAvailable: "N/A",
   },
 
   // Navigation
@@ -59,6 +65,15 @@ export const enUS = {
     updateProfile: "Update Profile",
     language: "Language",
     memberSince: "Member since",
+    // i18n fix: Added missing profile keys
+    editProfile: "Edit Profile",
+    updateInfo: "Update your personal information",
+    updateSuccess: "Profile updated successfully!",
+    namePlaceholder: "Your name",
+    selectLanguage: "Select language",
+    saveChanges: "Save Changes",
+    user: "User",
+    admin: "Admin",
   },
 
   // Reading
@@ -102,13 +117,13 @@ export const enUS = {
   // Demo Page
   demo: {
     badge: "Demo",
-    title: "Welcome to AI Tarot",
+    title: "Welcome to AI Mystic Tarot",
     subtitle: "A self-discovery experience guided by the symbolic wisdom of tarot. Ask your question and let the cards offer a perspective for reflection.",
     disclaimer: "Tarot is a tool for symbolic reflection, entertainment, and self-discovery. It does not replace professional medical, legal, financial, or psychological advice.",
     errorPrefix: "Error",
     errorCode: "Code",
     yourQuestion: "Your question",
-    footer: "AI Tarot - Demo Version",
+    footer: "AI Mystic Tarot - Demo Version",
   },
 
   // History
@@ -134,6 +149,11 @@ export const enUS = {
     deleting: "Deleting...",
     characters: "characters",
     emptyError: "Note cannot be empty",
+    // i18n fix: Added missing journal keys
+    loadError: "Error loading note",
+    saveError: "Error saving note",
+    deleteError: "Error deleting note",
+    characterCount: "{current} / {max} characters",
   },
 
   // Credits
@@ -149,6 +169,22 @@ export const enUS = {
     refund: "Refund",
     adjustment: "Adjustment",
     welcome: "Welcome",
+    // i18n fix: Added missing credits keys
+    lowBalance: "You're running low on credits!",
+    totalSpent: "Total Spent",
+    onReadings: "On tarot readings",
+    totalPurchased: "Total Purchased",
+    includingBonus: "Including bonuses",
+    transactionDescription: "Your credit transactions will appear here",
+    types: {
+      reading: "Tarot Reading",
+      purchase: "Credit Purchase",
+      bonus: "Bonus",
+      welcome: "Welcome Credits",
+      refund: "Refund",
+      adjustment: "Adjustment",
+      default: "Transaction",
+    },
   },
 
   // Payment
@@ -170,6 +206,10 @@ export const enUS = {
     makeReading: "Make a Reading",
     viewHistory: "View Credit History",
     receiptSent: "A receipt has been sent to your email",
+    // i18n fix: Added missing payment keys
+    creditsCount: "{count} Credits",
+    mostPopular: "Most Popular",
+    noExpiration: "Credits never expire",
   },
 
   // Errors
@@ -187,7 +227,7 @@ export const enUS = {
 
   // Metadata
   meta: {
-    appName: "AI Tarot",
+    appName: "AI Mystic Tarot",
     tagline: "Your digital spiritual guide",
   },
 
@@ -231,7 +271,7 @@ export const enUS = {
       title: "There's a Better Way",
       subtitle: "What if you could get personalized guidance in under a minute?",
       description:
-        "AI Tarot combines ancient symbolic wisdom with cutting-edge AI to give you readings that actually resonate. No generic fortunes. Just meaningful reflection tailored to your question.",
+        "AI Mystic Tarot combines ancient symbolic wisdom with cutting-edge AI to give you readings that actually resonate. No generic fortunes. Just meaningful reflection tailored to your question.",
       features: [
         "Personalized interpretations for YOUR question",
         "Clear, actionable insights (no mystical jargon)",
@@ -239,7 +279,7 @@ export const enUS = {
       ],
     },
     features: {
-      title: "Why AI Tarot Works",
+      title: "Why AI Mystic Tarot Works",
       subtitle: "Built different. Here's the proof.",
       items: [
         {
@@ -282,7 +322,7 @@ export const enUS = {
       footer: "Join 10,000+ people who found clarity",
     },
     footer: {
-      copyright: "AI Tarot. All rights reserved.",
+      copyright: "AI Mystic Tarot. All rights reserved.",
       privacy: "Privacy",
       terms: "Terms",
     },
@@ -291,7 +331,7 @@ export const enUS = {
   // Settings Page
   settings: {
     title: "Settings",
-    subtitle: "Customize your AI Tarot experience",
+    subtitle: "Customize your AI Mystic Tarot experience",
     language: {
       title: "Language",
       description: "Choose your preferred language",

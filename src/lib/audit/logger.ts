@@ -155,8 +155,31 @@ export async function auditLog(input: AuditLogInput): Promise<void> {
 }
 
 /**
- * Sanitize metadata to remove potentially sensitive information
- * and ensure it's JSON-serializable.
+ * Sensitive key patterns that should be redacted
+ */
+const SENSITIVE_KEY_PATTERNS = [
+  "password",
+  "secret",
+  "token",
+  "key",
+  "credential",
+  "authorization",
+  "auth",
+  "bearer",
+  "api_key",
+  "apikey",
+];
+
+/**
+ * Maximum length for string values in metadata
+ */
+const MAX_STRING_LENGTH = 1000;
+
+/**
+ * Sanitize metadata to remove potentially sensitive information,
+ * prevent log injection attacks, and ensure JSON-serializable.
+ *
+ * MED-2 FIX: Added control character sanitization to prevent log injection.
  */
 function sanitizeMetadata(
   metadata: Record<string, unknown> | undefined
@@ -168,14 +191,22 @@ function sanitizeMetadata(
   for (const [key, value] of Object.entries(metadata)) {
     // Skip sensitive-looking keys
     const lowerKey = key.toLowerCase();
-    if (
-      lowerKey.includes("password") ||
-      lowerKey.includes("secret") ||
-      lowerKey.includes("token") ||
-      lowerKey.includes("key") ||
-      lowerKey.includes("credential")
-    ) {
+    if (SENSITIVE_KEY_PATTERNS.some((pattern) => lowerKey.includes(pattern))) {
       sanitized[key] = "[REDACTED]";
+      continue;
+    }
+
+    // MED-2 FIX: Sanitize string values to prevent log injection
+    if (typeof value === "string") {
+      const cleaned = value
+        // Remove control characters (ASCII 0-31 and 127-159)
+        // This prevents log injection attacks via newlines, tabs, etc.
+        .replace(/[\x00-\x1F\x7F-\x9F]/g, "")
+        // Normalize excessive whitespace
+        .replace(/\s+/g, " ")
+        // Trim to max length
+        .slice(0, MAX_STRING_LENGTH);
+      sanitized[key] = cleaned;
       continue;
     }
 

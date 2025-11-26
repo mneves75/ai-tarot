@@ -61,7 +61,7 @@ export default function DemoReadingPage() {
     <PageContainer showOrbs maxWidth="4xl" padding="none">
       {/* Sticky glass header */}
       <PageHeader
-        title="AI Tarot"
+        title="AI Mystic Tarot"
         showLanguageToggle
         showSettings
         maxWidth="4xl"
@@ -134,9 +134,8 @@ export default function DemoReadingPage() {
               <AnimatedSection variant="fadeIn" delay={0.3} className="text-center pt-8">
                 <Button
                   onClick={handleNewReading}
-                  variant="outline"
                   size="lg"
-                  className="border-white/20 text-white hover:bg-white/10 hover:border-white/30"
+                  className="bg-gradient-to-r from-purple-600 to-violet-600 hover:from-purple-500 hover:to-violet-500 text-white font-semibold shadow-lg shadow-purple-500/25 border-0 px-8"
                 >
                   {t("reading.newReading")}
                 </Button>

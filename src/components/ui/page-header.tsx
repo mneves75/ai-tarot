@@ -21,7 +21,7 @@ import { Logo } from "./logo";
 // ============================================================
 
 interface PageHeaderProps {
-  /** Page title - if "AI Tarot" or "Mystic Tarot", renders the logo component */
+  /** Page title - if "AI Mystic Tarot", renders the logo component */
   title: string;
   /** Optional subtitle/description */
   subtitle?: string;
@@ -104,7 +104,7 @@ export function PageHeader({
   maxWidth = "4xl",
 }: PageHeaderProps) {
   // Determine if we should render the logo based on title or explicit prop
-  const shouldUseLogo = useLogo || title === "AI Tarot" || title === "Mystic Tarot";
+  const shouldUseLogo = useLogo || title === "AI Mystic Tarot";
   return (
     <header
       className={cn(

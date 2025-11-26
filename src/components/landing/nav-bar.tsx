@@ -45,7 +45,7 @@ export function NavBar() {
           href="/"
           className="text-xl font-semibold text-white hover:text-white/90 transition-colors"
         >
-          AI Tarot
+          AI Mystic Tarot
         </Link>
 
         {/* Actions */}

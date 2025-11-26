@@ -6,7 +6,7 @@ import { AuthPageWrapper } from "@/components/auth/auth-page-wrapper";
 import { SkeletonForm } from "@/components/ui/skeleton";
 
 export const metadata = {
-  title: "Sign Up - AI Tarot",
+  title: "Sign Up - AI Mystic Tarot",
   description: "Create your free account and get credits for your first readings.",
 };
 

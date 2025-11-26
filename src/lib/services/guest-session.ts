@@ -21,8 +21,33 @@ import { auditLog, type AuditLogLevel } from "@/lib/audit/logger";
  * In production, this MUST be set via environment variable.
  *
  * SECURITY: Without this, attackers can enumerate or forge session IDs.
+ *
+ * CRIT-1 FIX: Fail loudly in production if secret is missing.
  */
-const GUEST_SESSION_SECRET = process.env["GUEST_SESSION_SECRET"] ?? "development-only-secret-change-in-production";
+function getGuestSessionSecret(): string {
+  const secret = process.env["GUEST_SESSION_SECRET"];
+
+  if (secret) {
+    return secret;
+  }
+
+  // In production, missing secret is a critical configuration error
+  if (process.env["NODE_ENV"] === "production") {
+    throw new Error(
+      "CRITICAL: GUEST_SESSION_SECRET environment variable is required in production. " +
+      "Without it, guest sessions can be forged by attackers."
+    );
+  }
+
+  // Development-only fallback (logged as warning)
+  console.warn(
+    "[SECURITY WARNING] Using development-only secret for guest sessions. " +
+    "Set GUEST_SESSION_SECRET in production!"
+  );
+  return "development-only-secret-do-not-use-in-prod";
+}
+
+const GUEST_SESSION_SECRET = getGuestSessionSecret();
 
 /**
  * Sign a session ID with HMAC-SHA256.
@@ -256,8 +281,11 @@ export async function getGuestSessionStatus(): Promise<GuestSessionStatus> {
 /**
  * Increment the free readings used count for a guest session.
  *
+ * MED-1 FIX: Atomic quota check in WHERE clause prevents race conditions.
+ * Two concurrent requests cannot both succeed if only 1 reading remains.
+ *
  * @param sessionId The guest session ID
- * @returns The updated session or null if not found/expired
+ * @returns The updated session or null if not found/expired/quota exhausted
  */
 export async function incrementGuestReadingsUsed(
   sessionId: string
@@ -271,12 +299,16 @@ export async function incrementGuestReadingsUsed(
       and(
         eq(guestSessions.id, sessionId),
         isNull(guestSessions.deletedAt),
-        gt(guestSessions.expiresAt, new Date())
+        gt(guestSessions.expiresAt, new Date()),
+        // MED-1 FIX: Atomic quota check - prevents TOCTOU race condition
+        // Only increment if under quota limit, making the check-and-increment atomic
+        sql`${guestSessions.freeReadingsUsed} < ${FREE_GUEST_READINGS}`
       )
     )
     .returning();
 
   if (!updated) {
+    // Session not found, expired, deleted, OR quota exhausted
     return null;
   }
 

@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to AI Tarot will be documented in this file.
+All notable changes to AI Mystic Tarot will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - **Premium UI Redesign**: Mercury/Vercel-inspired glass morphism design across all screens
   - Created premium logo component with animated SVG icon (crystal ball + tarot card motif)
-  - Brand renamed from "AI Tarot" to "Mystic Tarot" with gradient text styling
+  - Brand renamed to "AI Mystic Tarot" with gradient text styling
   - PageHeader now auto-renders logo when title matches brand name
   - Comprehensive skeleton components including `GlassCardSkeleton`
 - **Demo Page Enhancements**: Improved legibility and visual polish
@@ -45,6 +45,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Design document: `docs/plans/2025-11-25-landing-settings-design.md`
 
 ### Changed
+- **Settings Page Redesign**: Applied Mercury/Vercel-style glass morphism
+  - Added gradient background with decorative purple orb
+  - Sticky header with glass blur effect
+  - Icon-enhanced page title with settings indicator
+  - Consistent with overall app design language
 - Updated i18n type system to support arrays in translations
 - Replaced basic landing page with premium animated version
 - Added `landing` and `settings` translation namespaces
@@ -101,16 +106,56 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Post-update verification ensures floor constraint
   - Refund operations can still go negative (legitimate business case)
 
+- **CRIT-1 (Session): Hardcoded Secret Fallback**: Production now requires GUEST_SESSION_SECRET
+  - Application throws on startup if secret missing in production
+  - Development uses clear warning message with fallback
+  - Updated `.env.example` with required variable
+  - Affected files: `guest-session.ts`, `session-signing.ts`
+
+- **MED-1: Guest Session Quota Race Condition**: Fixed TOCTOU vulnerability
+  - Added atomic quota check in `incrementGuestReadingsUsed()` WHERE clause
+  - Prevents concurrent requests from bypassing free reading quota
+  - Uses SQL constraint to ensure atomicity
+
+- **MED-2: Audit Log Injection**: Added control character sanitization
+  - Metadata strings now stripped of control characters (ASCII 0-31, 127-159)
+  - Added length limits (1000 chars) to prevent log flooding
+  - Expanded sensitive key patterns for better redaction
+
+### Added (i18n)
+- Extended translation keys for better component coverage
+  - `common`: saving, deleting, ptBR, enUS, notAvailable
+  - `profile`: editProfile, updateInfo, updateSuccess, namePlaceholder, selectLanguage, saveChanges, user, admin
+  - `journal`: loadError, saveError, deleteError, characterCount
+  - `credits`: lowBalance, totalSpent, onReadings, totalPurchased, includingBonus, transactionDescription, types
+  - `payment`: creditsCount, mostPopular, noExpiration
+- Created comprehensive execution plan: `DOCS/EXECUTION-PLAN.md`
+
 ### Changed
 - **LLM Provider Order**: Swapped provider priority - OpenAI (gpt-4o-mini) is now the primary provider with Gemini as fallback
   - More reliable structured output generation
   - Better availability during high-traffic periods
 
 ### Fixed
-- **Card Images Not Displaying**: ReadingResults now uses actual card images from `/public/cards/`
-  - Added Next.js Image component for optimized loading
-  - Proper fallback to symbols when image unavailable
-  - Reversed card rotation support for images
+- **Card Images Not Displaying**: Computed imageUrl from card code pattern instead of relying on DB field
+  - TarotService now computes `/cards/${card.code}.png` at draw time
+  - ReadingHistoryService also computes imageUrl for history pages
+  - Single source of truth eliminates null imageUrl issues
+  - Added 2 new tests verifying imageUrl pattern
+- **Card Images Cut Off**: Fixed aspect ratio mismatch in card displays
+  - Actual card images are 1024x1792 (4:7 ratio), was using 2:3
+  - Changed `aspect-[2/3]` to `aspect-[4/7]` in reading results
+  - Changed `object-cover` to `object-contain` for full card visibility
+  - Applied same fix to history detail page
+- **Spread Type Combobox**: Fixed select trigger showing both label and description
+  - SelectValue now explicitly displays only the label
+  - Description still visible in dropdown options
+- **Nova Leitura Button**: Upgraded from outline to gradient style
+  - Consistent with primary CTA styling throughout app
+- **Landing Page Solution Section**: Replaced skeleton mockup with actual tarot card
+  - Now displays "The Star" card with real image from `/public/cards/`
+  - Added floating background cards with gentle animations
+  - Mercury/Vercel-style glass card container with hover effects
 - **Reading Results Legibility**: Complete redesign with dark backgrounds and high contrast
   - Replaced purple gradient glass with solid `bg-gray-900/90` backgrounds
   - Text contrast improved to WCAG AA standard (white/85-90%)

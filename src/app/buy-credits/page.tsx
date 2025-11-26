@@ -11,7 +11,7 @@ import { GlassCard, GlassCardHeader, GlassCardTitle, GlassCardContent } from "@/
 import { GlassCardSkeleton } from "@/components/ui/skeleton";
 
 export const metadata = {
-  title: "Comprar Créditos - AI Tarot",
+  title: "Comprar Créditos - AI Mystic Tarot",
   description: "Adquira créditos para suas leituras de tarot.",
 };
 
@@ -25,7 +25,7 @@ export default async function BuyCreditsPage() {
   return (
     <PageContainer showOrbs maxWidth="4xl">
       <PageHeader
-        title="AI Tarot"
+        title="AI Mystic Tarot"
         showBack
         backHref="/"
         showLanguageToggle

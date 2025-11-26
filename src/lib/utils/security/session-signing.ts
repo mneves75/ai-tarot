@@ -12,12 +12,33 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 
 /**
- * Secret key for HMAC signing of guest session cookies.
+ * Get the secret key for HMAC signing.
  * In production, this MUST be set via environment variable.
  *
  * SECURITY: Without this, attackers can enumerate or forge session IDs.
+ *
+ * CRIT-1 FIX: Fail loudly in production if secret is missing.
  */
-const DEFAULT_SECRET = "development-only-secret-change-in-production";
+function getDefaultSecret(): string {
+  const secret = process.env["GUEST_SESSION_SECRET"];
+
+  if (secret) {
+    return secret;
+  }
+
+  // In production, missing secret is a critical configuration error
+  if (process.env["NODE_ENV"] === "production") {
+    throw new Error(
+      "CRITICAL: GUEST_SESSION_SECRET environment variable is required in production. " +
+      "Without it, guest sessions can be forged by attackers."
+    );
+  }
+
+  // Development-only fallback
+  return "development-only-secret-do-not-use-in-prod";
+}
+
+const DEFAULT_SECRET = getDefaultSecret();
 
 /**
  * Sign a session ID with HMAC-SHA256.

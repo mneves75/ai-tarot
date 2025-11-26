@@ -84,7 +84,7 @@ export default function HistoryPage() {
   if (error) {
     return (
       <PageContainer showOrbs maxWidth="4xl">
-        <PageHeader title="AI Tarot" showBack backHref="/" />
+        <PageHeader title="AI Mystic Tarot" showBack backHref="/" />
         <main className="px-4 sm:px-6 py-8 sm:py-12">
           <GlassCard intensity="medium" padding="lg" className="max-w-lg mx-auto">
             <GlassCardContent className="py-8 text-center">
@@ -106,7 +106,7 @@ export default function HistoryPage() {
   return (
     <PageContainer showOrbs maxWidth="4xl">
       <PageHeader
-        title="AI Tarot"
+        title="AI Mystic Tarot"
         showBack
         backHref="/"
         showLanguageToggle
@@ -228,7 +228,7 @@ export default function HistoryPage() {
 function HistoryPageSkeleton() {
   return (
     <PageContainer showOrbs maxWidth="4xl">
-      <PageHeader title="AI Tarot" showBack backHref="/" />
+      <PageHeader title="AI Mystic Tarot" showBack backHref="/" />
       <main className="px-4 sm:px-6 py-8 sm:py-12 space-y-8">
         <div className="text-center space-y-3">
           <div className="h-10 w-64 bg-white/10 rounded-lg mx-auto animate-pulse" />

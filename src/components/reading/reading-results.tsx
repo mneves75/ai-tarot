@@ -187,16 +187,17 @@ function TarotCardDisplay({ card, interpretation }: TarotCardDisplayProps) {
       {/* Card Image */}
       <div className="px-4 pb-4 flex-shrink-0">
         <div
-          className={`relative aspect-[2/3] rounded-lg overflow-hidden border border-white/10 bg-gray-800 ${
+          className={`relative aspect-[4/7] rounded-lg overflow-hidden border border-white/10 bg-gray-800 ${
             isReversed ? "rotate-180" : ""
           }`}
         >
+          {/* Aspect ratio 4:7 matches actual card images (1024x1792px) */}
           {card.imageUrl ? (
             <Image
               src={card.imageUrl}
               alt={`${card.name} tarot card`}
               fill
-              className="object-cover"
+              className="object-contain"
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 33vw, 20vw"
               priority={false}
             />

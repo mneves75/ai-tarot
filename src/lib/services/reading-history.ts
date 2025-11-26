@@ -168,6 +168,16 @@ export async function getReadingDetail(
     .where(eq(readingCards.readingId, readingId))
     .orderBy(readingCards.positionIndex);
 
+  // Compute imageUrl for each card from code (images stored at /cards/{code}.png)
+  const cardsWithComputedImageUrl = cards.map((c) => ({
+    ...c,
+    card: {
+      ...c.card,
+      // Compute imageUrl from card code - ensures single source of truth
+      imageUrl: `/cards/${c.card.code}.png`,
+    },
+  }));
+
   return {
     id: reading.id,
     question: reading.question,
@@ -178,7 +188,7 @@ export async function getReadingDetail(
     model: reading.model,
     latencyMs: reading.latencyMs,
     createdAt: reading.createdAt,
-    cards,
+    cards: cardsWithComputedImageUrl,
   };
 }
 

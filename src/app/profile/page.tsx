@@ -10,7 +10,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { GlassCardSkeleton } from "@/components/ui/skeleton";
 
 export const metadata = {
-  title: "Perfil - AI Tarot",
+  title: "Perfil - AI Mystic Tarot",
   description: "Gerencie seu perfil e configurações.",
 };
 
@@ -20,7 +20,7 @@ export default async function ProfilePage() {
   return (
     <PageContainer showOrbs maxWidth="2xl">
       <PageHeader
-        title="AI Tarot"
+        title="AI Mystic Tarot"
         showBack
         backHref="/"
         showLanguageToggle

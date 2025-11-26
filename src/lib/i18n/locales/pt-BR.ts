@@ -12,6 +12,12 @@ export const ptBR = {
     submit: "Enviar",
     credits: "créditos",
     credit: "crédito",
+    // i18n fix: Added missing common keys
+    saving: "Salvando...",
+    deleting: "Excluindo...",
+    ptBR: "Português (Brasil)",
+    enUS: "English (US)",
+    notAvailable: "N/D",
   },
 
   // Navigation
@@ -59,6 +65,15 @@ export const ptBR = {
     updateProfile: "Atualizar Perfil",
     language: "Idioma",
     memberSince: "Membro desde",
+    // i18n fix: Added missing profile keys
+    editProfile: "Editar Perfil",
+    updateInfo: "Atualize suas informações pessoais",
+    updateSuccess: "Perfil atualizado com sucesso!",
+    namePlaceholder: "Seu nome",
+    selectLanguage: "Selecione o idioma",
+    saveChanges: "Salvar Alterações",
+    user: "Usuário",
+    admin: "Admin",
   },
 
   // Reading
@@ -102,13 +117,13 @@ export const ptBR = {
   // Demo Page
   demo: {
     badge: "Demo",
-    title: "Bem-vindo ao AI Tarot",
+    title: "Bem-vindo ao AI Mystic Tarot",
     subtitle: "Uma experiência de autoconhecimento guiada pela sabedoria simbólica do tarot. Formule sua pergunta e deixe as cartas oferecerem uma perspectiva para reflexão.",
     disclaimer: "O tarot é uma ferramenta de reflexão simbólica para entretenimento e autoconhecimento. Não substitui aconselhamento profissional médico, jurídico, financeiro ou psicológico.",
     errorPrefix: "Erro",
     errorCode: "Código",
     yourQuestion: "Sua pergunta",
-    footer: "AI Tarot - Versão Demo",
+    footer: "AI Mystic Tarot - Versão Demo",
   },
 
   // History
@@ -134,6 +149,11 @@ export const ptBR = {
     deleting: "Excluindo...",
     characters: "caracteres",
     emptyError: "A anotação não pode estar vazia",
+    // i18n fix: Added missing journal keys
+    loadError: "Erro ao carregar anotação",
+    saveError: "Erro ao salvar anotação",
+    deleteError: "Erro ao excluir anotação",
+    characterCount: "{current} / {max} caracteres",
   },
 
   // Credits
@@ -149,6 +169,22 @@ export const ptBR = {
     refund: "Reembolso",
     adjustment: "Ajuste",
     welcome: "Boas-vindas",
+    // i18n fix: Added missing credits keys
+    lowBalance: "Você está com poucos créditos!",
+    totalSpent: "Total Gasto",
+    onReadings: "Em leituras de tarot",
+    totalPurchased: "Total Comprado",
+    includingBonus: "Incluindo bônus",
+    transactionDescription: "Suas transações de créditos aparecerão aqui",
+    types: {
+      reading: "Leitura de Tarot",
+      purchase: "Compra de Créditos",
+      bonus: "Bônus",
+      welcome: "Créditos de Boas-vindas",
+      refund: "Reembolso",
+      adjustment: "Ajuste",
+      default: "Transação",
+    },
   },
 
   // Payment
@@ -170,6 +206,10 @@ export const ptBR = {
     makeReading: "Fazer uma Leitura",
     viewHistory: "Ver Histórico de Créditos",
     receiptSent: "Um recibo foi enviado para seu email",
+    // i18n fix: Added missing payment keys
+    creditsCount: "{count} Créditos",
+    mostPopular: "Mais Popular",
+    noExpiration: "Créditos não expiram",
   },
 
   // Errors
@@ -187,7 +227,7 @@ export const ptBR = {
 
   // Metadata
   meta: {
-    appName: "AI Tarot",
+    appName: "AI Mystic Tarot",
     tagline: "Seu guia espiritual digital",
   },
 
@@ -231,7 +271,7 @@ export const ptBR = {
       title: "E se existisse um caminho?",
       subtitle: "Uma ponte entre a sabedoria antiga e a tecnologia de hoje.",
       description:
-        "O AI Tarot une simbolos que atravessaram seculos com a inteligencia artificial mais avancada. O resultado? Reflexoes profundas, personalizadas para sua jornada unica. Nao e sobre prever o futuro. E sobre se conhecer melhor.",
+        "O AI Mystic Tarot une simbolos que atravessaram seculos com a inteligencia artificial mais avancada. O resultado? Reflexoes profundas, personalizadas para sua jornada unica. Nao e sobre prever o futuro. E sobre se conhecer melhor.",
       features: [
         "Interpretacoes feitas especialmente para sua pergunta",
         "Linguagem clara, sem misticismo confuso",
@@ -239,7 +279,7 @@ export const ptBR = {
       ],
     },
     features: {
-      title: "Por que o AI Tarot e diferente",
+      title: "Por que o AI Mystic Tarot e diferente",
       subtitle: "Nao e apenas mais um app. E uma ferramenta de autoconhecimento.",
       items: [
         {
@@ -282,7 +322,7 @@ export const ptBR = {
       footer: "Junte-se a 10.000+ pessoas que encontraram clareza",
     },
     footer: {
-      copyright: "AI Tarot. Todos os direitos reservados.",
+      copyright: "AI Mystic Tarot. Todos os direitos reservados.",
       privacy: "Privacidade",
       terms: "Termos",
     },
@@ -291,7 +331,7 @@ export const ptBR = {
   // Settings Page
   settings: {
     title: "Configuracoes",
-    subtitle: "Personalize sua experiencia no AI Tarot",
+    subtitle: "Personalize sua experiencia no AI Mystic Tarot",
     language: {
       title: "Idioma",
       description: "Escolha seu idioma preferido",

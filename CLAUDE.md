@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-AI Tarot is a web application providing AI-powered tarot readings with per-card interpretations and overall synthesis. Users can ask questions, select spreads (1/3/5 cards), and receive symbolic, non-predictive interpretations. The app supports guest and authenticated users, with a credits-based system for readings.
+AI Mystic Tarot is a web application providing AI-powered tarot readings with per-card interpretations and overall synthesis. Users can ask questions, select spreads (1/3/5 cards), and receive symbolic, non-predictive interpretations. The app supports guest and authenticated users, with a credits-based system for readings.
 
 Key characteristics:
 - Bilingual support (en-US / pt-BR, defaults to user browser)

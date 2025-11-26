@@ -11,7 +11,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { GlassCard, GlassCardHeader, GlassCardTitle, GlassCardContent } from "@/components/ui/glass-card";
 
 export const metadata = {
-  title: "Detalhes da Leitura - AI Tarot",
+  title: "Detalhes da Leitura - AI Mystic Tarot",
   description: "Visualize os detalhes completos da sua leitura de tarot.",
 };
 
@@ -51,7 +51,7 @@ export default async function ReadingDetailPage({ params }: PageProps) {
   return (
     <PageContainer showOrbs maxWidth="4xl">
       <PageHeader
-        title="AI Tarot"
+        title="AI Mystic Tarot"
         showBack
         backHref="/history"
         showLanguageToggle
@@ -118,14 +118,14 @@ export default async function ReadingDetailPage({ params }: PageProps) {
                     </h3>
                   </div>
 
-                  {/* Card Image */}
+                  {/* Card Image - aspect-[4/7] matches actual card images (1024x1792px) */}
                   {readingCard.card.imageUrl && (
-                    <div className="relative w-full aspect-[2/3] rounded-lg overflow-hidden border border-white/10">
+                    <div className="relative w-full aspect-[4/7] rounded-lg overflow-hidden border border-white/10">
                       <Image
                         src={readingCard.card.imageUrl}
                         alt={readingCard.card.name}
                         fill
-                        className={`object-cover ${
+                        className={`object-contain ${
                           readingCard.orientation === "reversed"
                             ? "rotate-180"
                             : ""

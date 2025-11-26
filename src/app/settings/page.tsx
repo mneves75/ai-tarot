@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { SettingsPageClient } from "./page-client";
 
 export const metadata: Metadata = {
-  title: "Settings | AI Tarot",
-  description: "Customize your AI Tarot experience - language and API keys",
+  title: "Settings | AI Mystic Tarot",
+  description: "Customize your AI Mystic Tarot experience - language and API keys",
 };
 
 /**

@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 /**
  * Logo Component
  *
- * Premium animated logo for AI Tarot with mystical design.
+ * Premium animated logo for AI Mystic Tarot with mystical design.
  * Features a stylized crystal ball with tarot cards motif.
  *
  * @module components/ui/logo
@@ -219,7 +219,7 @@ export function Logo({
               config.text
             )}
           >
-            Mystic Tarot
+            AI Mystic Tarot
           </span>
           {size === "xl" && (
             <span className="text-xs text-white/50 tracking-wide">

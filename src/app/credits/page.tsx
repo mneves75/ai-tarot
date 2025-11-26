@@ -9,7 +9,7 @@ import { SkeletonGrid, SkeletonCard } from "@/components/ui/skeleton";
 import { CreditsPageClient } from "./credits-client";
 
 export const metadata = {
-  title: "Credits - AI Tarot",
+  title: "Credits - AI Mystic Tarot",
   description: "Manage your credits and view your transaction history.",
 };
 

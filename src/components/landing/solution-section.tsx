@@ -1,8 +1,9 @@
 "use client";
 
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { useTranslation } from "@/lib/i18n/context";
-import { Check } from "lucide-react";
+import { Check, Sparkles } from "lucide-react";
 import {
   fadeUpBlur,
   staggerContainer,
@@ -14,10 +15,10 @@ import {
 /**
  * Solution section - reveals the product as the answer to the problem.
  *
- * Features:
+ * Mercury/Vercel-style design with:
  * - Clear value proposition
  * - Key benefits checklist
- * - Visual product representation
+ * - Actual tarot card visual
  */
 export function SolutionSection() {
   const { t, translations } = useTranslation();
@@ -28,13 +29,13 @@ export function SolutionSection() {
   return (
     <section className="relative py-24 sm:py-32 px-4 sm:px-6 overflow-hidden">
       {/* Background gradient */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black via-purple-950/20 to-black" />
+      <div className="absolute inset-0 bg-gradient-to-b from-black via-purple-950/10 to-black" />
 
       {/* Decorative glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] bg-purple-600/10 rounded-full blur-[150px] pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-purple-600/8 rounded-full blur-[120px] pointer-events-none" />
 
       <div className="relative z-10 max-w-6xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
           {/* Text content */}
           <motion.div
             variants={staggerContainer}
@@ -43,21 +44,21 @@ export function SolutionSection() {
             viewport={viewportSettings}
           >
             <motion.h2
-              className="text-3xl sm:text-4xl md:text-5xl font-bold text-white"
+              className="text-3xl sm:text-4xl md:text-5xl font-bold text-white tracking-tight"
               variants={fadeUpBlur}
             >
               {t("landing.solution.title")}
             </motion.h2>
 
             <motion.p
-              className="mt-4 text-xl text-purple-300"
+              className="mt-4 text-xl text-purple-300/90 font-medium"
               variants={fadeUpBlur}
             >
               {t("landing.solution.subtitle")}
             </motion.p>
 
             <motion.p
-              className="mt-6 text-lg text-white/70 leading-relaxed"
+              className="mt-6 text-lg text-white/60 leading-relaxed"
               variants={fadeUpBlur}
             >
               {t("landing.solution.description")}
@@ -71,58 +72,70 @@ export function SolutionSection() {
                   className="flex items-start gap-3"
                   variants={staggerItem}
                 >
-                  <span className="flex-shrink-0 w-6 h-6 rounded-full bg-gradient-to-br from-purple-500 to-violet-500 flex items-center justify-center mt-0.5">
-                    <Check className="w-4 h-4 text-white" />
+                  <span className="flex-shrink-0 w-5 h-5 rounded-full bg-purple-500/20 border border-purple-500/30 flex items-center justify-center mt-0.5">
+                    <Check className="w-3 h-3 text-purple-400" />
                   </span>
-                  <span className="text-white/80">{feature}</span>
+                  <span className="text-white/70">{feature}</span>
                 </motion.li>
               ))}
             </motion.ul>
           </motion.div>
 
-          {/* Visual product representation */}
+          {/* Visual - Actual Tarot Card Display */}
           <motion.div
             className="relative"
-            initial={{ opacity: 0, x: 50 }}
-            whileInView={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={viewportSettings}
             transition={{ duration: duration.slow, delay: 0.2 }}
           >
-            {/* Product mockup - glass card stack */}
-            <div className="relative aspect-square max-w-md mx-auto">
-              {/* Background glow */}
-              <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-violet-500/10 rounded-3xl blur-2xl" />
+            <div className="relative max-w-sm mx-auto">
+              {/* Glow effect behind card */}
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-500/30 to-violet-500/20 rounded-3xl blur-3xl scale-110" />
 
-              {/* Stacked cards effect */}
+              {/* Background decorative cards */}
               <motion.div
-                className="absolute inset-4 rounded-2xl bg-white/[0.03] border border-white/10 backdrop-blur-xl"
-                style={{ transform: "rotate(-6deg)" }}
-                animate={{ rotate: [-6, -4, -6] }}
-                transition={{ duration: 6, repeat: Infinity }}
+                className="absolute -left-8 top-8 w-32 h-48 rounded-2xl bg-white/[0.03] border border-white/10 backdrop-blur-sm"
+                style={{ transform: "rotate(-15deg)" }}
+                animate={{ rotate: [-15, -12, -15], y: [0, -5, 0] }}
+                transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
               />
               <motion.div
-                className="absolute inset-4 rounded-2xl bg-white/[0.04] border border-white/10 backdrop-blur-xl"
-                style={{ transform: "rotate(3deg)" }}
-                animate={{ rotate: [3, 5, 3] }}
-                transition={{ duration: 5, repeat: Infinity }}
+                className="absolute -right-8 top-12 w-32 h-48 rounded-2xl bg-white/[0.03] border border-white/10 backdrop-blur-sm"
+                style={{ transform: "rotate(12deg)" }}
+                animate={{ rotate: [12, 15, 12], y: [0, -8, 0] }}
+                transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
               />
 
-              {/* Main card */}
+              {/* Main card container */}
               <motion.div
-                className="relative h-full rounded-2xl bg-gradient-to-br from-white/[0.08] to-white/[0.02] border border-white/10 backdrop-blur-xl p-8 flex flex-col items-center justify-center"
-                whileHover={{ scale: 1.02 }}
-                transition={{ duration: duration.quick }}
+                className="relative z-10 rounded-2xl bg-gradient-to-br from-gray-900/90 to-gray-900/70 border border-white/10 backdrop-blur-xl p-6 shadow-2xl"
+                whileHover={{ scale: 1.02, y: -5 }}
+                transition={{ duration: 0.3 }}
               >
-                {/* Tarot card icon */}
-                <div className="w-24 h-36 rounded-xl bg-gradient-to-br from-purple-500/30 to-violet-500/20 border border-white/20 flex items-center justify-center mb-6">
-                  <span className="text-4xl">&#10024;</span>
+                {/* Card image */}
+                <div className="relative aspect-[4/7] rounded-xl overflow-hidden border border-white/10 mb-4">
+                  <Image
+                    src="/cards/major_17_the_star.png"
+                    alt="The Star Tarot Card"
+                    fill
+                    className="object-contain"
+                    sizes="(max-width: 768px) 100vw, 300px"
+                  />
                 </div>
 
-                {/* Mock interpretation preview */}
-                <div className="w-full space-y-3">
-                  <div className="h-3 bg-white/10 rounded-full w-3/4 mx-auto" />
-                  <div className="h-3 bg-white/10 rounded-full w-full" />
-                  <div className="h-3 bg-white/10 rounded-full w-5/6 mx-auto" />
+                {/* Card info */}
+                <div className="text-center space-y-2">
+                  <h3 className="text-lg font-semibold text-white">A Estrela</h3>
+                  <div className="flex items-center justify-center gap-2 text-purple-400 text-sm">
+                    <Sparkles className="w-4 h-4" />
+                    <span>Esperança • Inspiração • Serenidade</span>
+                  </div>
+                </div>
+
+                {/* Decorative corner accent */}
+                <div className="absolute top-3 right-3 w-8 h-8 rounded-full bg-purple-500/10 flex items-center justify-center">
+                  <Sparkles className="w-4 h-4 text-purple-400/60" />
                 </div>
               </motion.div>
             </div>

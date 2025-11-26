@@ -169,7 +169,9 @@ export class TarotService {
       keywordsReversed: card.keywordsReversed,
       descriptionUpright: card.descriptionUpright,
       descriptionReversed: card.descriptionReversed,
-      imageUrl: card.imageUrl,
+      // Compute imageUrl from card code - images stored at /cards/{code}.png
+      // This avoids dependency on DB imageUrl field and ensures single source of truth
+      imageUrl: `/cards/${card.code}.png`,
     }));
 
     return this.deckCache;

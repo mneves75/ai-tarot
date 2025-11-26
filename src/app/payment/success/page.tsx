@@ -12,7 +12,7 @@ import { GlassCard, GlassCardHeader, GlassCardTitle, GlassCardContent } from "@/
 import { GlassCardSkeleton } from "@/components/ui/skeleton";
 
 export const metadata = {
-  title: "Pagamento Confirmado - AI Tarot",
+  title: "Pagamento Confirmado - AI Mystic Tarot",
   description: "Seu pagamento foi processado com sucesso.",
 };
 
@@ -41,7 +41,7 @@ export default async function PaymentSuccessPage({ searchParams }: PageProps) {
 
   return (
     <PageContainer showOrbs centered maxWidth="lg">
-      <PageHeader title="AI Tarot" showBack backHref="/" />
+      <PageHeader title="AI Mystic Tarot" showBack backHref="/" />
 
       <main className="px-4 sm:px-6 py-8 sm:py-12 w-full">
         <Suspense fallback={<SuccessSkeleton />}>

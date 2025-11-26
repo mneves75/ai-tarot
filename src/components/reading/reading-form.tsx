@@ -193,20 +193,23 @@ export function ReadingForm({ onSuccess, onError, locale = "pt-BR" }: ReadingFor
             >
               <SelectTrigger
                 id="spread-type"
-                className="w-full bg-black/30 border-white/20 text-white focus:border-purple-400 focus:ring-purple-400/30"
+                className="w-full h-auto min-h-[2.5rem] bg-black/30 border-white/20 text-white focus:border-purple-400 focus:ring-purple-400/30"
               >
-                <SelectValue placeholder={t("reading.spreadType")} />
+                <SelectValue placeholder={t("reading.spreadType")}>
+                  {/* Show only label in trigger, not description */}
+                  {spreadOptions.find((opt) => opt.value === spreadType)?.label}
+                </SelectValue>
               </SelectTrigger>
-              <SelectContent className="bg-gray-900/98 border-white/20 backdrop-blur-xl">
+              <SelectContent className="bg-gray-900/95 border-white/20 backdrop-blur-xl z-50">
                 {spreadOptions.map((option) => (
                   <SelectItem
                     key={option.value}
                     value={option.value}
-                    className="text-white focus:bg-white/15 focus:text-white"
+                    className="text-white focus:bg-purple-500/20 focus:text-white cursor-pointer py-3"
                   >
-                    <div className="flex flex-col py-1">
+                    <div className="flex flex-col gap-0.5">
                       <span className="font-medium">{option.label}</span>
-                      <span className="text-xs text-white/60">
+                      <span className="text-xs text-white/50 font-normal">
                         {option.description}
                       </span>
                     </div>

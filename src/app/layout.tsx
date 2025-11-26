@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AI Tarot - Leituras Simbolicas com IA",
+  title: "AI Mystic Tarot - Leituras Simbolicas com IA",
   description:
     "Uma experiencia de autoconhecimento guiada pela sabedoria simbolica do tarot e inteligencia artificial.",
 };
