@@ -210,7 +210,7 @@ export async function deductCreditsForReading(
       throw new Error("Credit balance floor constraint violated");
     }
 
-    // Record transaction with accurate balance
+    // Record transaction
     const [transaction] = await tx
       .insert(creditTransactions)
       .values({
@@ -220,7 +220,6 @@ export async function deductCreditsForReading(
         refType: "reading",
         refId: readingId,
         description: `Reading (${spreadType} card spread)`,
-        balanceAfter: updated.credits, // Track balance for audit
       })
       .returning();
 
@@ -572,7 +571,6 @@ export async function reserveCreditsForReading(
           delta: -cost,
           type: "reading",
           description: `Reserved for ${spreadType} card reading (pending)`,
-          balanceAfter: updated.credits, // Track balance for audit
         })
         .returning();
 

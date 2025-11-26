@@ -56,6 +56,51 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Dependencies
 - Added `framer-motion` for scroll-based animations
 
+### Security
+- **CRIT-1: Race Condition in Credit Deduction**: Implemented atomic credit reservation pattern
+  - Credits are now reserved atomically BEFORE expensive LLM operations
+  - Uses `FOR UPDATE` row-level locks to prevent concurrent overdraft
+  - Automatic refund on failure with audit logging
+  - Affected files: `reading.ts`, `credits.ts`
+
+- **CRIT-2: Payment Webhook Transaction Integrity**: Fixed non-atomic payment processing
+  - Payment record creation and credit addition now wrapped in transaction
+  - Payment status updated to "failed" if credit addition fails
+  - Added audit logging for credit addition failures
+
+- **CRIT-3: SQL Injection in Credit Query**: Fixed unsafe SQL construction
+  - Replaced raw SQL string concatenation with Drizzle query builder
+  - `getTotalCreditsPurchased()` now uses parameterized queries
+  - Uses `eq()` and `and()` operators for type-safe filtering
+
+- **CRIT-4: Guest Session Cookie Hijacking**: Added HMAC signing for session cookies
+  - Guest session IDs now signed with HMAC-SHA256
+  - Timing-safe signature verification prevents timing attacks
+  - Invalid signatures logged for security monitoring
+  - Cookie format: `{sessionId}.{signature}`
+  - Requires `GUEST_SESSION_SECRET` env var in production
+
+- **CRIT-5: Open Redirect in Auth Callback**: Added strict path validation
+  - Validates redirect paths with allowlist and denylist patterns
+  - Blocks protocol-relative URLs (`//evil.com`)
+  - Blocks encoded attacks (`%2f%2f`, `%5c`)
+  - Sanitizes `x-forwarded-host` header
+  - Logs blocked redirect attempts
+
+- **HIGH-3: Missing Welcome Credits Audit Trail**: Added transaction record
+  - Welcome credits now recorded in `credit_transactions` table
+  - Ensures complete audit trail for all credit movements
+
+- **HIGH-4: Journal Deletion Authorization**: Defense-in-depth verification
+  - Journal deletion now verifies reading ownership via JOIN
+  - Added audit logging for deletion attempts and successes
+  - Prevents potential IDOR vulnerabilities
+
+- **HIGH-7: Credit Balance Floor Constraint**: Prevents negative balances
+  - Added `GREATEST(0, ...)` SQL constraint on credit deductions
+  - Post-update verification ensures floor constraint
+  - Refund operations can still go negative (legitimate business case)
+
 ### Fixed
 - **LLM Integration**: Resolved critical issues preventing tarot readings from completing
   - Downgraded Zod from v4.1.13 to v3.25.76 (AI SDK incompatibility with Zod v4)

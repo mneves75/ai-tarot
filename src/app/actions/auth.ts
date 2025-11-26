@@ -222,7 +222,6 @@ export async function signupWithEmail(
         type: "welcome",
         delta: WELCOME_CREDITS,
         description: "Welcome credits for new user signup",
-        balanceAfter: WELCOME_CREDITS,
       });
     });
 
