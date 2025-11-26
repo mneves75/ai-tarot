@@ -75,7 +75,7 @@ describe("LLM Service", () => {
   });
 
   describe("generateReading", () => {
-    it("should generate reading successfully with Gemini (primary)", async () => {
+    it("should generate reading successfully with OpenAI (primary)", async () => {
       const mockResponse = createValidMockResponse();
       mocks.generateObject.mockResolvedValueOnce({
         object: mockResponse,
@@ -89,20 +89,20 @@ describe("LLM Service", () => {
       const result = await generateReading(input);
 
       expect(result.output).toEqual(mockResponse);
-      expect(result.model).toBe("gemini-2.0-flash");
+      expect(result.model).toBe("gpt-4o-mini");
       expect(result.tokensPrompt).toBe(500);
       expect(result.tokensCompletion).toBe(200);
       expect(result.latencyMs).toBeGreaterThanOrEqual(0);
       expect(mocks.generateObject).toHaveBeenCalledTimes(1);
     });
 
-    it("should fallback to OpenAI when Gemini fails", async () => {
+    it("should fallback to Gemini when OpenAI fails", async () => {
       const mockResponse = createValidMockResponse();
 
-      // Gemini fails
-      mocks.generateObject.mockRejectedValueOnce(new Error("Gemini API error"));
+      // OpenAI fails
+      mocks.generateObject.mockRejectedValueOnce(new Error("OpenAI API error"));
 
-      // OpenAI succeeds
+      // Gemini succeeds
       mocks.generateObject.mockResolvedValueOnce({
         object: mockResponse,
         usage: {
@@ -115,15 +115,15 @@ describe("LLM Service", () => {
       const result = await generateReading(input);
 
       expect(result.output).toEqual(mockResponse);
-      expect(result.model).toBe("gpt-4o-mini");
+      expect(result.model).toBe("gemini-2.0-flash");
       expect(result.tokensPrompt).toBe(600);
       expect(result.tokensCompletion).toBe(250);
       expect(mocks.generateObject).toHaveBeenCalledTimes(2);
     });
 
     it("should throw LLMError when both providers fail", async () => {
-      mocks.generateObject.mockRejectedValueOnce(new Error("Gemini error"));
       mocks.generateObject.mockRejectedValueOnce(new Error("OpenAI error"));
+      mocks.generateObject.mockRejectedValueOnce(new Error("Gemini error"));
 
       const input = createValidInput();
 

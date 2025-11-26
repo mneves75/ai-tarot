@@ -11,7 +11,7 @@ import { SYSTEM_PROMPT, buildUserPrompt } from "./prompts";
  * LLM Service - Abstraction layer for AI provider interactions.
  *
  * Features:
- * - Provider fallback (Gemini primary, OpenAI secondary)
+ * - Provider fallback (OpenAI primary, Gemini secondary)
  * - Structured output with Zod validation
  * - Cost tracking and budget enforcement
  * - Comprehensive logging
@@ -147,7 +147,7 @@ function getOpenAIModel() {
 /**
  * Generate a tarot reading interpretation using LLM.
  *
- * Uses Gemini as primary provider with OpenAI fallback.
+ * Uses OpenAI as primary provider with Gemini fallback.
  * Returns structured output validated against ReadingOutputSchema.
  *
  * @throws LLMError if all providers fail or budget exceeded
@@ -161,10 +161,10 @@ export async function generateReading(
   const startTime = Date.now();
   const userPrompt = buildUserPrompt(input);
 
-  // Try Gemini first (primary provider - lower cost)
+  // Try OpenAI first (primary provider - more reliable)
   try {
-    const model = getGeminiModel();
-    const modelName = "gemini-2.0-flash";
+    const model = getOpenAIModel();
+    const modelName = "gpt-4o-mini";
 
     const result = await generateObject({
       model,
@@ -181,7 +181,7 @@ export async function generateReading(
     trackCost(modelName, promptTokens, completionTokens);
 
     structuredLog("info", "LLM generation successful", {
-      provider: "google",
+      provider: "openai",
       model: modelName,
       latencyMs,
       promptTokens,
@@ -195,16 +195,16 @@ export async function generateReading(
       tokensCompletion: completionTokens,
       latencyMs,
     };
-  } catch (geminiError) {
-    structuredLog("warn", "Gemini failed, falling back to OpenAI", {
+  } catch (openaiError) {
+    structuredLog("warn", "OpenAI failed, falling back to Gemini", {
       error:
-        geminiError instanceof Error ? geminiError.message : "Unknown error",
+        openaiError instanceof Error ? openaiError.message : "Unknown error",
     });
 
-    // Fallback to OpenAI
+    // Fallback to Gemini
     try {
-      const model = getOpenAIModel();
-      const modelName = "gpt-4o-mini";
+      const model = getGeminiModel();
+      const modelName = "gemini-2.0-flash";
 
       const result = await generateObject({
         model,
@@ -221,7 +221,7 @@ export async function generateReading(
       trackCost(modelName, promptTokens, completionTokens);
 
       structuredLog("info", "LLM generation successful (fallback)", {
-        provider: "openai",
+        provider: "google",
         model: modelName,
         latencyMs,
         promptTokens,
@@ -235,25 +235,25 @@ export async function generateReading(
         tokensCompletion: completionTokens,
         latencyMs,
       };
-    } catch (openaiError) {
+    } catch (geminiError) {
       const latencyMs = Date.now() - startTime;
 
       structuredLog("error", "All LLM providers failed", {
         latencyMs,
-        geminiError:
-          geminiError instanceof Error ? geminiError.message : "Unknown",
         openaiError:
           openaiError instanceof Error ? openaiError.message : "Unknown",
+        geminiError:
+          geminiError instanceof Error ? geminiError.message : "Unknown",
       });
 
       // Provide more helpful error message
-      const errorMessage = getProviderErrorMessage(geminiError, openaiError);
+      const errorMessage = getProviderErrorMessage(openaiError, geminiError);
 
       throw new LLMError(errorMessage, "all", {
-        geminiError:
-          geminiError instanceof Error ? geminiError.message : "Unknown",
         openaiError:
           openaiError instanceof Error ? openaiError.message : "Unknown",
+        geminiError:
+          geminiError instanceof Error ? geminiError.message : "Unknown",
       });
     }
   }
@@ -263,11 +263,11 @@ export async function generateReading(
  * Extract a helpful error message from provider errors.
  */
 function getProviderErrorMessage(
-  geminiError: unknown,
-  openaiError: unknown
+  openaiError: unknown,
+  geminiError: unknown
 ): string {
-  // Check for common error types
-  const errors = [geminiError, openaiError];
+  // Check for common error types (check primary provider first)
+  const errors = [openaiError, geminiError];
 
   for (const error of errors) {
     if (error instanceof Error) {
