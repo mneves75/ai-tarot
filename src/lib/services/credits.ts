@@ -1,5 +1,5 @@
 import "server-only";
-import { eq, sql, desc } from "drizzle-orm";
+import { eq, sql, desc, and, gte } from "drizzle-orm";
 import { db } from "@/lib/db";
 import {
   creditBalances,
@@ -498,6 +498,194 @@ export async function refundCredits(
 }
 
 // ============================================================
+// ATOMIC CREDIT RESERVATION (CRIT-1 FIX)
+// ============================================================
+
+/**
+ * Atomically reserve credits for a reading BEFORE expensive operations.
+ * This prevents race conditions where concurrent requests could all pass
+ * the credit check before any deduction occurs.
+ *
+ * Pattern:
+ * 1. Reserve credits atomically (this function)
+ * 2. Perform expensive operations (LLM call, etc.)
+ * 3. On success: confirmCreditReservation()
+ * 4. On failure: refundCreditReservation()
+ *
+ * @param userId - The user ID
+ * @param spreadType - The type of spread (determines cost)
+ * @returns Object with transactionId and cost, or null if insufficient credits
+ */
+export async function reserveCreditsForReading(
+  userId: string,
+  spreadType: "one" | "three" | "five"
+): Promise<{ transactionId: string; cost: number } | null> {
+  const cost = READING_COSTS[spreadType];
+
+  try {
+    return await db.transaction(async (tx) => {
+      // Get current balance with exclusive lock to prevent concurrent reads
+      const [balance] = await tx
+        .select()
+        .from(creditBalances)
+        .where(eq(creditBalances.userId, userId))
+        .for("update")
+        .limit(1);
+
+      if (!balance || balance.credits < cost) {
+        // Not enough credits - return null, don't throw
+        return null;
+      }
+
+      // Atomically deduct credits
+      const [updated] = await tx
+        .update(creditBalances)
+        .set({
+          credits: sql`${creditBalances.credits} - ${cost}`,
+          updatedAt: new Date(),
+        })
+        .where(eq(creditBalances.userId, userId))
+        .returning();
+
+      if (!updated) {
+        throw new Error("Failed to reserve credits");
+      }
+
+      // Record pending transaction (will be confirmed or refunded)
+      const [transaction] = await tx
+        .insert(creditTransactions)
+        .values({
+          userId,
+          delta: -cost,
+          type: "reading",
+          description: `Reserved for ${spreadType} card reading (pending)`,
+        })
+        .returning();
+
+      if (!transaction) {
+        throw new Error("Failed to create credit reservation");
+      }
+
+      await auditLog({
+        event: "credits.reserved",
+        level: "info" as AuditLogLevel,
+        userId,
+        sessionId: undefined,
+        resource: "credits",
+        resourceId: transaction.id,
+        action: "reserve",
+        success: true,
+        errorMessage: undefined,
+        durationMs: undefined,
+        metadata: {
+          cost,
+          spreadType,
+          newBalance: updated.credits,
+        },
+      });
+
+      return { transactionId: transaction.id, cost };
+    });
+  } catch (error) {
+    // HIGH-6 FIX: Log credit operation failures
+    await auditLog({
+      event: "credits.reserve_failed",
+      level: "error" as AuditLogLevel,
+      userId,
+      sessionId: undefined,
+      resource: "credits",
+      resourceId: undefined,
+      action: "reserve",
+      success: false,
+      errorMessage: error instanceof Error ? error.message : "Unknown error",
+      durationMs: undefined,
+      metadata: { spreadType, cost },
+    });
+    throw error;
+  }
+}
+
+/**
+ * Confirm a credit reservation after successful reading creation.
+ * Updates the transaction description to show it was confirmed.
+ *
+ * @param transactionId - The reservation transaction ID
+ * @param readingId - The created reading ID
+ */
+export async function confirmCreditReservation(
+  transactionId: string,
+  readingId: string
+): Promise<void> {
+  await db
+    .update(creditTransactions)
+    .set({
+      refType: "reading",
+      refId: readingId,
+      description: sql`REPLACE(${creditTransactions.description}, '(pending)', '(confirmed)')`,
+    })
+    .where(eq(creditTransactions.id, transactionId));
+}
+
+/**
+ * Refund a credit reservation if the reading creation fails.
+ * Adds credits back and creates a refund transaction.
+ *
+ * @param userId - The user ID
+ * @param transactionId - The original reservation transaction ID
+ * @param cost - The amount to refund
+ * @param reason - Reason for refund
+ */
+export async function refundCreditReservation(
+  userId: string,
+  transactionId: string,
+  cost: number,
+  reason: string
+): Promise<void> {
+  await db.transaction(async (tx) => {
+    // Add credits back
+    await tx
+      .update(creditBalances)
+      .set({
+        credits: sql`${creditBalances.credits} + ${cost}`,
+        updatedAt: new Date(),
+      })
+      .where(eq(creditBalances.userId, userId));
+
+    // Update original transaction to show it was refunded
+    await tx
+      .update(creditTransactions)
+      .set({
+        description: sql`REPLACE(${creditTransactions.description}, '(pending)', '(refunded: ' || ${reason} || ')')`,
+      })
+      .where(eq(creditTransactions.id, transactionId));
+
+    // Create refund transaction
+    await tx.insert(creditTransactions).values({
+      userId,
+      delta: cost,
+      type: "adjustment",
+      refType: "credit_transaction",
+      refId: transactionId,
+      description: `Refund for failed reading: ${reason}`,
+    });
+  });
+
+  await auditLog({
+    event: "credits.reservation_refunded",
+    level: "warn" as AuditLogLevel,
+    userId,
+    sessionId: undefined,
+    resource: "credits",
+    resourceId: transactionId,
+    action: "refund_reservation",
+    success: true,
+    errorMessage: undefined,
+    durationMs: undefined,
+    metadata: { cost, reason },
+  });
+}
+
+// ============================================================
 // TRANSACTION HISTORY
 // ============================================================
 
@@ -556,13 +744,17 @@ export async function getTotalCreditsSpent(userId: string): Promise<number> {
  * @returns Total credits purchased
  */
 export async function getTotalCreditsPurchased(userId: string): Promise<number> {
+  // CRIT-3 FIX: Use proper parameterized query builder instead of raw SQL
   const [result] = await db
     .select({
       total: sql<number>`COALESCE(SUM(${creditTransactions.delta}), 0)`,
     })
     .from(creditTransactions)
     .where(
-      sql`${creditTransactions.userId} = ${userId} AND ${creditTransactions.type} = 'purchase'`
+      and(
+        eq(creditTransactions.userId, userId),
+        eq(creditTransactions.type, "purchase")
+      )
     );
 
   return result?.total ?? 0;

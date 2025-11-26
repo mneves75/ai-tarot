@@ -8,6 +8,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Premium UI Redesign**: Mercury/Vercel-inspired glass morphism design across all screens
+  - Created premium logo component with animated SVG icon (crystal ball + tarot card motif)
+  - Brand renamed from "AI Tarot" to "Mystic Tarot" with gradient text styling
+  - PageHeader now auto-renders logo when title matches brand name
+  - Comprehensive skeleton components including `GlassCardSkeleton`
+- **Demo Page Enhancements**: Improved legibility and visual polish
+  - Higher contrast glass morphism effects (10-15% opacity vs 5-10%)
+  - Better text contrast with white/70 and white/60 opacity levels
+  - Added box-shadows and inset highlights for depth
+- **Premium Page Designs**: All app screens redesigned with glass morphism
+  - Buy Credits (`/buy-credits`): Glass cards with credit info icons
+  - Payment Success (`/payment/success`): Centered success card with gradient CTA
+  - Profile (`/profile`): Clean glass card layout with premium spacing
+  - History (`/history`): Reading list with animated stagger and glass cards
+  - Reading Detail (`/history/[id]`): Card grid with glass effects and metadata
 - **Premium Landing Page**: Mercury/Vercel-inspired design with Framer Motion animations
   - Full-page scroll container with progress indicator
   - Animated hero section with floating tarot cards
@@ -33,6 +48,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated i18n type system to support arrays in translations
 - Replaced basic landing page with premium animated version
 - Added `landing` and `settings` translation namespaces
+- Improved glass morphism CSS with rgba() for better cross-browser opacity control
+- Enhanced `PageTitle` component with better text contrast (white/70 subtitle)
+- ReadingForm now uses dark bg-black/30 backgrounds for better input visibility
+- All form fields updated with focus:border-purple-400 and ring effects
 
 ### Dependencies
 - Added `framer-motion` for scroll-based animations
