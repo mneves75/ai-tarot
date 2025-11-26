@@ -3,6 +3,7 @@ import { eq, and, isNull } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { readingJournals, readings } from "@/lib/db/schema";
 import { assertValidUuid } from "@/lib/validation";
+import { auditLog, type AuditLogLevel } from "@/lib/audit/logger";
 
 /**
  * Journal Service
@@ -168,9 +169,14 @@ export async function saveJournalEntry(
 /**
  * Delete a journal entry (soft delete).
  *
+ * HIGH-4 FIX: Defense-in-depth verification includes:
+ * 1. Journal must belong to the user (readingJournals.userId)
+ * 2. Associated reading must belong to the user (readings.userId)
+ * 3. Audit logging for all deletion attempts
+ *
  * @param journalId - The journal entry ID
  * @param userId - The user ID (for authorization)
- * @returns True if deleted, false if not found
+ * @returns True if deleted, false if not found/unauthorized
  */
 export async function deleteJournalEntry(
   journalId: string,
@@ -179,19 +185,71 @@ export async function deleteJournalEntry(
   assertValidUuid(journalId, "journalId");
   assertValidUuid(userId, "userId");
 
+  // HIGH-4 FIX: First, verify ownership with JOIN (defense-in-depth)
+  // This ensures both the journal AND its reading belong to the user
+  const [journalToDelete] = await db
+    .select({
+      id: readingJournals.id,
+      readingId: readingJournals.readingId,
+    })
+    .from(readingJournals)
+    .innerJoin(readings, eq(readingJournals.readingId, readings.id))
+    .where(
+      and(
+        eq(readingJournals.id, journalId),
+        eq(readingJournals.userId, userId),
+        eq(readings.userId, userId), // Defense-in-depth: verify reading ownership
+        isNull(readingJournals.deletedAt),
+        isNull(readings.deletedAt)
+      )
+    )
+    .limit(1);
+
+  if (!journalToDelete) {
+    // Log unauthorized/not found deletion attempt
+    await auditLog({
+      event: "journal.delete.not_found",
+      level: "warn" as AuditLogLevel,
+      userId,
+      sessionId: undefined,
+      resource: "reading_journal",
+      resourceId: journalId,
+      action: "delete",
+      success: false,
+      errorMessage: "Journal not found or access denied",
+      durationMs: undefined,
+      metadata: { attemptedJournalId: journalId },
+    });
+    return false;
+  }
+
+  // Perform the soft delete
   const result = await db
     .update(readingJournals)
     .set({
       deletedAt: new Date(),
     })
-    .where(
-      and(
-        eq(readingJournals.id, journalId),
-        eq(readingJournals.userId, userId),
-        isNull(readingJournals.deletedAt)
-      )
-    )
+    .where(eq(readingJournals.id, journalToDelete.id))
     .returning({ id: readingJournals.id });
 
-  return result.length > 0;
+  const deleted = result.length > 0;
+
+  // HIGH-4 FIX: Audit log successful deletion
+  if (deleted) {
+    await auditLog({
+      event: "journal.delete.success",
+      level: "info" as AuditLogLevel,
+      userId,
+      sessionId: undefined,
+      resource: "reading_journal",
+      resourceId: journalId,
+      action: "delete",
+      success: true,
+      errorMessage: undefined,
+      durationMs: undefined,
+      metadata: { readingId: journalToDelete.readingId },
+    });
+  }
+
+  return deleted;
 }

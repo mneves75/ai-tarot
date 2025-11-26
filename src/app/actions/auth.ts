@@ -6,7 +6,7 @@ import { headers } from "next/headers";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { db } from "@/lib/db";
-import { profiles, creditBalances } from "@/lib/db/schema";
+import { profiles, creditBalances, creditTransactions } from "@/lib/db/schema";
 import { auditLog, type AuditLogLevel } from "@/lib/audit/logger";
 import { ValidationError, AuthenticationError, toClientSafeError } from "@/lib/errors";
 import { WELCOME_CREDITS } from "@/lib/config/constants";
@@ -197,7 +197,8 @@ export async function signupWithEmail(
     const newUser = data.user;
     const userEmail = newUser.email ?? email;
 
-    // Create profile and credit balance in a transaction
+    // HIGH-3 FIX: Create profile, credit balance, AND credit transaction in a single transaction
+    // All credit changes MUST have a corresponding transaction record for audit trail
     await db.transaction(async (tx) => {
       // Create profile
       await tx.insert(profiles).values({
@@ -212,6 +213,16 @@ export async function signupWithEmail(
       await tx.insert(creditBalances).values({
         userId: newUser.id,
         credits: WELCOME_CREDITS,
+      });
+
+      // HIGH-3 FIX: Record welcome credits transaction for audit trail
+      // This ensures we have a complete record of all credit movements
+      await tx.insert(creditTransactions).values({
+        userId: newUser.id,
+        type: "welcome",
+        delta: WELCOME_CREDITS,
+        description: "Welcome credits for new user signup",
+        balanceAfter: WELCOME_CREDITS,
       });
     });
 

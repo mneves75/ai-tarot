@@ -340,33 +340,55 @@ export async function getGuestSessionId(): Promise<string | null> {
 /**
  * Clear the guest session cookie.
  * Called when a guest user converts to a registered user.
+ *
+ * CRIT-4 FIX: Verifies HMAC signature before soft-deleting session.
  */
 export async function clearGuestSession(): Promise<void> {
   const cookieStore = await cookies();
-  const sessionId = cookieStore.get(GUEST_SESSION_COOKIE)?.value;
+  const signedToken = cookieStore.get(GUEST_SESSION_COOKIE)?.value;
 
-  if (sessionId) {
-    // Soft delete the session
-    await db
-      .update(guestSessions)
-      .set({ deletedAt: new Date() })
-      .where(eq(guestSessions.id, sessionId));
+  if (signedToken) {
+    // CRIT-4 FIX: Verify signature and extract actual session ID
+    const sessionId = verifyAndExtractSessionId(signedToken);
 
-    await auditLog({
-      event: "guest_session.cleared",
-      level: "info" as AuditLogLevel,
-      userId: undefined,
-      sessionId,
-      resource: "guest_session",
-      resourceId: sessionId,
-      action: "clear",
-      success: true,
-      errorMessage: undefined,
-      durationMs: undefined,
-      metadata: undefined,
-    });
+    if (sessionId) {
+      // Soft delete the session only if signature is valid
+      await db
+        .update(guestSessions)
+        .set({ deletedAt: new Date() })
+        .where(eq(guestSessions.id, sessionId));
+
+      await auditLog({
+        event: "guest_session.cleared",
+        level: "info" as AuditLogLevel,
+        userId: undefined,
+        sessionId,
+        resource: "guest_session",
+        resourceId: sessionId,
+        action: "clear",
+        success: true,
+        errorMessage: undefined,
+        durationMs: undefined,
+        metadata: undefined,
+      });
+    } else {
+      // Invalid signature - log attempt but still delete the cookie
+      await auditLog({
+        event: "guest_session.clear_invalid_signature",
+        level: "warn" as AuditLogLevel,
+        userId: undefined,
+        sessionId: undefined,
+        resource: "guest_session",
+        resourceId: undefined,
+        action: "clear",
+        success: false,
+        errorMessage: "Invalid session cookie signature during clear",
+        durationMs: undefined,
+        metadata: { tokenLength: signedToken.length },
+      });
+    }
   }
 
-  // Delete the cookie
+  // Always delete the cookie (even if invalid)
   cookieStore.delete(GUEST_SESSION_COOKIE);
 }

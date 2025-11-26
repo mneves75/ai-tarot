@@ -189,11 +189,12 @@ export async function deductCreditsForReading(
       throw new InsufficientCreditsError(cost, balance.credits);
     }
 
-    // Deduct credits
+    // HIGH-7 FIX: Deduct credits with floor constraint
+    // Use GREATEST(0, ...) as a safety net, and verify the result
     const [updated] = await tx
       .update(creditBalances)
       .set({
-        credits: sql`${creditBalances.credits} - ${cost}`,
+        credits: sql`GREATEST(0, ${creditBalances.credits} - ${cost})`,
         updatedAt: new Date(),
       })
       .where(eq(creditBalances.userId, userId))
@@ -203,7 +204,13 @@ export async function deductCreditsForReading(
       throw new Error("Failed to update credit balance");
     }
 
-    // Record transaction
+    // HIGH-7 FIX: Defense-in-depth verification
+    // If GREATEST kicked in, it means something went wrong with our pre-check
+    if (updated.credits < 0) {
+      throw new Error("Credit balance floor constraint violated");
+    }
+
+    // Record transaction with accurate balance
     const [transaction] = await tx
       .insert(creditTransactions)
       .values({
@@ -213,6 +220,7 @@ export async function deductCreditsForReading(
         refType: "reading",
         refId: readingId,
         description: `Reading (${spreadType} card spread)`,
+        balanceAfter: updated.credits, // Track balance for audit
       })
       .returning();
 
@@ -537,11 +545,11 @@ export async function reserveCreditsForReading(
         return null;
       }
 
-      // Atomically deduct credits
+      // HIGH-7 FIX: Atomically deduct credits with floor constraint
       const [updated] = await tx
         .update(creditBalances)
         .set({
-          credits: sql`${creditBalances.credits} - ${cost}`,
+          credits: sql`GREATEST(0, ${creditBalances.credits} - ${cost})`,
           updatedAt: new Date(),
         })
         .where(eq(creditBalances.userId, userId))
@@ -549,6 +557,11 @@ export async function reserveCreditsForReading(
 
       if (!updated) {
         throw new Error("Failed to reserve credits");
+      }
+
+      // HIGH-7 FIX: Defense-in-depth verification
+      if (updated.credits < 0) {
+        throw new Error("Credit balance floor constraint violated during reservation");
       }
 
       // Record pending transaction (will be confirmed or refunded)
@@ -559,6 +572,7 @@ export async function reserveCreditsForReading(
           delta: -cost,
           type: "reading",
           description: `Reserved for ${spreadType} card reading (pending)`,
+          balanceAfter: updated.credits, // Track balance for audit
         })
         .returning();
 
