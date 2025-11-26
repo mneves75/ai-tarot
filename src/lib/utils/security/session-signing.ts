@@ -57,7 +57,7 @@ export function verifyAndExtractSessionId(
   }
 
   const [sessionId, signature] = parts;
-  if (!sessionId || !signature || signature.length !== 32) {
+  if (!(sessionId && signature) || signature.length !== 32) {
     return null;
   }
 
@@ -99,7 +99,7 @@ export function hasValidTokenFormat(token: string): boolean {
   if (parts.length !== 2) return false;
 
   const [sessionId, signature] = parts;
-  if (!sessionId || !signature) return false;
+  if (!(sessionId && signature)) return false;
 
   // Signature should be 32 hex chars
   if (signature.length !== 32) return false;

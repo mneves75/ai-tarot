@@ -2,7 +2,7 @@ import "server-only";
 import { cookies } from "next/headers";
 import { cache } from "react";
 import { createHmac, timingSafeEqual } from "node:crypto";
-import { eq, and, isNull, gt, sql, lt } from "drizzle-orm";
+import { eq, and, isNull, gt, sql } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { guestSessions } from "@/lib/db/schema";
 import {
@@ -54,7 +54,7 @@ function verifyAndExtractSessionId(signedToken: string): string | null {
   }
 
   const [sessionId, signature] = parts;
-  if (!sessionId || !signature || signature.length !== 32) {
+  if (!(sessionId && signature) || signature.length !== 32) {
     return null;
   }
 

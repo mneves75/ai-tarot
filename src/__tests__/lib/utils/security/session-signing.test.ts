@@ -51,9 +51,9 @@ describe("session signing - CRIT-4 security fix", () => {
 
     it("generates valid hex signature", () => {
       const token = signSessionId(TEST_SESSION_ID, TEST_SECRET);
-      const signature = token.split(".")[1];
+      const signature = token.split(".")[1] ?? "";
 
-      expect(/^[a-f0-9]{32}$/i.test(signature!)).toBe(true);
+      expect(/^[a-f0-9]{32}$/i.test(signature)).toBe(true);
     });
   });
 
@@ -117,10 +117,11 @@ describe("session signing - CRIT-4 security fix", () => {
       const [sessionId, signature] = validToken.split(".");
 
       // Create tokens with increasingly similar (but wrong) signatures
+      const sig = signature ?? "";
       const wrongSignatures = [
         "00000000000000000000000000000000",
-        signature!.slice(0, 16) + "0000000000000000",
-        signature!.slice(0, 30) + "00",
+        `${sig.slice(0, 16)}0000000000000000`,
+        `${sig.slice(0, 30)}00`,
       ];
 
       // All should fail equally (timing-safe)

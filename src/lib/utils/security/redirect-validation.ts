@@ -21,13 +21,16 @@ export const ALLOWED_REDIRECT_PREFIXES = [
  * Denylist of dangerous redirect patterns.
  * These are checked AFTER the prefix check as a defense-in-depth measure.
  */
+// biome-ignore lint/suspicious/noControlCharactersInRegex: Intentionally matching null bytes for security
+const NULL_BYTE_PATTERN = /\x00/;
+
 export const DANGEROUS_PATTERNS: RegExp[] = [
   /^\/\//, // Protocol-relative URLs (//evil.com)
   /^\/\\/, // Backslash after slash (/\evil.com)
   /:\/\//, // Protocols (http://, https://, javascript://)
   /%2f%2f/i, // URL-encoded double slash
   /%5c/i, // URL-encoded backslash
-  /\x00/, // Null bytes
+  NULL_BYTE_PATTERN, // Null bytes - security critical
   /@/, // Credentials in URL (@)
 ];
 
