@@ -1,6 +1,10 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 import { auditLog, type AuditLogLevel } from "@/lib/audit/logger";
+import {
+  validateRedirectPath,
+  sanitizeForwardedHost,
+} from "@/lib/utils/security";
 
 /**
  * Auth callback route handler for OAuth providers.
@@ -17,95 +21,6 @@ import { auditLog, type AuditLogLevel } from "@/lib/audit/logger";
  *
  * @module app/auth/callback
  */
-
-// ============================================================
-// CRIT-5 FIX: OPEN REDIRECT PREVENTION
-// ============================================================
-
-/**
- * Allowlist of valid redirect path prefixes.
- * Only paths starting with these prefixes are allowed.
- */
-const ALLOWED_REDIRECT_PREFIXES = [
-  "/",           // Root and all internal paths
-];
-
-/**
- * Denylist of dangerous redirect patterns.
- * These are checked AFTER the prefix check as a defense-in-depth measure.
- */
-const DANGEROUS_PATTERNS = [
-  /^\/\//,              // Protocol-relative URLs (//evil.com)
-  /^\/\\/,              // Backslash after slash (/\evil.com)
-  /:\/\//,              // Protocols (http://, https://, javascript://)
-  /%2f%2f/i,            // URL-encoded double slash
-  /%5c/i,               // URL-encoded backslash
-  /\x00/,               // Null bytes
-  /@/,                  // Credentials in URL (@)
-];
-
-/**
- * Validate a redirect path to prevent open redirect attacks.
- *
- * SECURITY: This is critical for preventing phishing attacks where
- * an attacker crafts a URL like:
- *   /auth/callback?code=xxx&next=//evil.com
- *
- * The validation ensures:
- * 1. Path must start with exactly one forward slash
- * 2. Path cannot contain protocol markers or special characters
- * 3. Path must be a valid relative path within our domain
- *
- * @param path - The path to validate
- * @returns The sanitized path if valid, "/" otherwise
- */
-function validateRedirectPath(path: string | null): string {
-  // Default to home if no path provided
-  if (!path) {
-    return "/";
-  }
-
-  // Decode the path to catch encoded attacks
-  let decodedPath: string;
-  try {
-    decodedPath = decodeURIComponent(path);
-  } catch {
-    // Invalid encoding - reject
-    return "/";
-  }
-
-  // Must start with exactly one forward slash (internal path)
-  if (!decodedPath.startsWith("/")) {
-    return "/";
-  }
-
-  // Check against dangerous patterns
-  for (const pattern of DANGEROUS_PATTERNS) {
-    if (pattern.test(decodedPath) || pattern.test(path)) {
-      return "/";
-    }
-  }
-
-  // Additional validation: ensure the first path segment is valid
-  // This catches edge cases like /. or /.. or paths that could be
-  // interpreted as relative by some browsers
-  const firstSegment = decodedPath.split("/")[1] ?? "";
-  if (firstSegment === "." || firstSegment === "..") {
-    return "/";
-  }
-
-  // Verify it matches our allowlist
-  const isAllowed = ALLOWED_REDIRECT_PREFIXES.some((prefix) =>
-    decodedPath.startsWith(prefix)
-  );
-
-  if (!isAllowed) {
-    return "/";
-  }
-
-  // Path is safe - use the original (not decoded) to preserve encoding
-  return path;
-}
 
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url);
@@ -150,8 +65,11 @@ export async function GET(request: Request) {
         return NextResponse.redirect(`${origin}${next}`);
       } else if (forwardedHost) {
         // CRIT-5 FIX: Also validate forwardedHost to prevent header injection
-        const sanitizedHost = forwardedHost.replace(/[^\w.-]/g, "");
-        return NextResponse.redirect(`https://${sanitizedHost}${next}`);
+        const sanitizedHost = sanitizeForwardedHost(forwardedHost);
+        if (sanitizedHost) {
+          return NextResponse.redirect(`https://${sanitizedHost}${next}`);
+        }
+        return NextResponse.redirect(`${origin}${next}`);
       } else {
         return NextResponse.redirect(`${origin}${next}`);
       }

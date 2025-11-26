@@ -102,6 +102,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Refund operations can still go negative (legitimate business case)
 
 ### Fixed
+- **Card Images Not Displaying**: ReadingResults now uses actual card images from `/public/cards/`
+  - Added Next.js Image component for optimized loading
+  - Proper fallback to symbols when image unavailable
+  - Reversed card rotation support for images
+- **Reading Results Legibility**: Complete redesign with dark backgrounds and high contrast
+  - Replaced purple gradient glass with solid `bg-gray-900/90` backgrounds
+  - Text contrast improved to WCAG AA standard (white/85-90%)
+  - Semantic HTML with proper ARIA labels for accessibility
+  - Clean visual hierarchy with icon-labeled sections
+- **Open Redirect Validation**: Fixed `/.evil.com` bypass (OWASP test case)
+  - Now blocks all dot-prefixed path segments, not just `.` and `..`
+  - Prevents potential domain spoofing via `/.[domain]` patterns
+
 - **LLM Integration**: Resolved critical issues preventing tarot readings from completing
   - Downgraded Zod from v4.1.13 to v3.25.76 (AI SDK incompatibility with Zod v4)
   - Updated Gemini model from `gemini-1.5-flash` to `gemini-2.0-flash` (deprecated model)
